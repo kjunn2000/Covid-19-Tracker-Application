@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Coronavirus Tracker Application</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body class="bg-dark">
+<div class="container">
+
+
+    <nav class="navbar navbar-dark bg-dark">
+        <span class="align-center"><h1 style="font-weight:bold;text-align:center;color:white;">Covid-19</h1></span>
+        <img src="../static/images/logo_stop_covid-19.png" width="120" height="100"
+             class="align-center" style="text-align:center" alt="" loading="lazy" th:src="@{images/logo_stop_covid-19.png}"/>
+        <span class="align-center" ><h1 style="font-weight:bold;text-align:center;color:white;" >Tracker</h1></span>
+    </nav>
+
+
+    <div class="jumbotron bg-light" >
+        <h1 class="display-4" style="font-family: 'Lobster', cursive;">Hello, Dear!</h1>
+        <p class="lead">This COVID-19 Tracker Application will show case updated in every day.</p>
+        <hr class="my-4">
+        <p>Coronavirus disease 2019 (COVID-19) is an infectious disease caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2).</p>
+        <p>Total Cases:</p>
+        <a class="btn btn-primary btn-lg" href="#table" role="button"><h1 th:text="${totalCases}"></h1></a>
+    </div>
+
+    <table id="table" class="table bg-light" style="padding:10px;padding-radius:30px;">
+        <tr style="text-align:center;">
+            <th>State</th>
+            <th>Country</th>
+            <th>Total cases reported</th>
+            <th>Changes since last day</th>
+        </tr>
+        <tr th:each="locationStat : ${locationStats}" style="color:white;padding:10px;">
+            <td class="bg-dark" th:text="${locationStat.state}"></td>
+            <td class="bg-warning" th:text="${locationStat.country}"></td>
+            <td class="bg-info" th:text="${locationStat.latestTotalCases}">0</td>
+            <td class="bg-danger" th:text="${locationStat.numCompareYesterday}">0</td>
+        </tr>
+    </table>
+</div>
+</body>
+
+</html>
