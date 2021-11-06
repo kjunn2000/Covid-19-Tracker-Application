@@ -21,10 +21,7 @@
 
 
     <div class="jumbotron bg-light" >
-        <h1 class="display-4" style="font-family: 'Lobster', cursive;">Hello, Dear!</h1>
         <p class="lead">This COVID-19 Tracker Application will show case updated in every day.</p>
-        <hr class="my-4">
-        <p>Coronavirus disease 2019 (COVID-19) is an infectious disease caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2).</p>
         <p>Total Cases:</p>
         <a class="btn btn-primary btn-lg" href="#table" role="button"><h1 th:text="${totalCases}"></h1></a>
     </div>
@@ -33,7 +30,7 @@
         <tr style="text-align:center;">
             <th>State</th>
             <th>Country</th>
-            <th>Total cases reported</th>
+            <th>Total confirmed cases reported</th>
         </tr>
         <tr th:each="locationStat : ${locationStats}" style="color:white;padding:10px;">
             <td class="bg-dark" th:text="${locationStat.location.state}"></td>

@@ -76,14 +76,16 @@ public class CoronaVirusDataService {
                 .collect(Collectors.toList());
     }
 
-    public LocationStatus convertToLocationRecord(CSVRecord csvRecord){
+    public LocationStatus convertToLocationRecord(final CSVRecord csvRecord){
         List<String> headers = csvRecord.getParser().getHeaderNames();
         List<String> dateHeaders = headers.subList(4,headers.size());
+
         List<Record> recordList = dateHeaders.stream().map(header -> {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy");
             LocalDate date = LocalDate.parse(header, formatter);
             return new Record(date, Integer.parseInt(csvRecord.get(header)));
         }).collect(Collectors.toList());
+
         Map<LocalDate, List<Record>> week = groupConfirmedCases(recordList, "week");
         Map<LocalDate, List<Record>> month= groupConfirmedCases(recordList, "month");
 
@@ -106,7 +108,7 @@ public class CoronaVirusDataService {
                 );
     }
 
-    public Map<LocalDate, List<Record>> groupConfirmedCases(List<Record> recordList, String groupBy){
+    public Map<LocalDate, List<Record>> groupConfirmedCases(List<Record> recordList, final String groupBy){
         return recordList.stream()
                 .collect(Collectors.groupingBy(record -> record.getDate()
                         .with(adjusters.get(groupBy))));
