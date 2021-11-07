@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.moodyjun</groupId>
-	<artifactId>aws-image-upload</artifactId>
+	<artifactId>Covid-19-Tracker-Application</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>aws-image-upload</name>
+	<name>Covid-19-Tracker-Application</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
@@ -39,13 +39,6 @@
 					<artifactId>junit-vintage-engine</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk -->
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk</artifactId>
-			<version>1.11.802</version>
 		</dependency>
 
 		<dependency>
