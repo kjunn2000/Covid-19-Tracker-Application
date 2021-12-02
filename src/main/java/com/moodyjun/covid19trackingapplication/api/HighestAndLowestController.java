@@ -12,28 +12,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-public class HomeController {
+public class HighestAndLowestController {
 
     @Autowired
     CoronaVirusDataService coronaVirusDataService;
 
-    @GetMapping("/")
+    @GetMapping("/highest-and-lowest")
     public String home(Model model) {
         List<OverallLocationStatus> summaryData= coronaVirusDataService.getSummaryData();
 
         model.addAttribute("summaryData", summaryData);
-        return "home";
+        return "highestAndLowest";
     }
 
-    @GetMapping("/search")
+    @GetMapping("/highest-and-lowest/search")
     public String homeSearch(Model model, @RequestParam(value = "country") String country) {
         List<OverallLocationStatus> summaryData= coronaVirusDataService.getSummaryData();
-        List<OverallLocationStatus> filteredData = summaryData.stream()
-                .filter(overallLocationStatus -> overallLocationStatus.getLocation()
-                        .getCountry().contains(country))
-                .collect(Collectors.toList());
+        List<OverallLocationStatus> filteredData = summaryData.stream().filter(overallLocationStatus -> overallLocationStatus.getLocation().getCountry().contains(country)).collect(Collectors.toList());
 
         model.addAttribute("summaryData", filteredData);
-        return "home";
+        return "highestAndLowest";
     }
 }

@@ -1,8 +1,6 @@
 package com.moodyjun.covid19trackingapplication.services;
 
-import com.moodyjun.covid19trackingapplication.model.Location;
-import com.moodyjun.covid19trackingapplication.model.LocationStatus;
-import com.moodyjun.covid19trackingapplication.model.Record;
+import com.moodyjun.covid19trackingapplication.model.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.moodyjun.covid19trackingapplication.model.DataType.*;
+
 @Service
 public class CoronaVirusDataService {
 
@@ -34,6 +34,7 @@ public class CoronaVirusDataService {
     private final List<LocationStatus> confirmedCovidData = new ArrayList<>();
     private final List<LocationStatus> deathCovidData = new ArrayList<>();
     private final List<LocationStatus> recoveredCovidData = new ArrayList<>();
+    private List<OverallLocationStatus> summaryData;
 
     public CoronaVirusDataService() {
         adjusters.put("week", TemporalAdjusters.previousOrSame(DayOfWeek.of(1)));
@@ -48,9 +49,10 @@ public class CoronaVirusDataService {
         Iterable<CSVRecord> recoveredRecords = fetchLatestData(RECOVERED_CASES_URL);
 
         clearAllData();
-        this.confirmedCovidData.addAll(translateCovidData(confirmedRecords));
-        this.confirmedCovidData.addAll(translateCovidData(deathRecords));
-        this.confirmedCovidData.addAll(translateCovidData(recoveredRecords));
+        this.confirmedCovidData.addAll(translateCovidData(confirmedRecords, CONFIRMED));
+        this.deathCovidData.addAll(translateCovidData(deathRecords, DEATH));
+        this.recoveredCovidData.addAll(translateCovidData(recoveredRecords, RECOVERED));
+        groupAllCovidDataPerState();
     }
 
     public void clearAllData(){
@@ -69,14 +71,14 @@ public class CoronaVirusDataService {
         return CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
     }
 
-    public List<LocationStatus> translateCovidData(Iterable<CSVRecord> records) {
+    public List<LocationStatus> translateCovidData(Iterable<CSVRecord> records, DataType dataType) {
         return StreamSupport
                 .stream(records.spliterator(), false)
-                .map(this::convertToLocationRecord)
+                .map((CSVRecord csvRecord) -> convertToLocationRecord(csvRecord, dataType))
                 .collect(Collectors.toList());
     }
 
-    public LocationStatus convertToLocationRecord(final CSVRecord csvRecord){
+    public LocationStatus convertToLocationRecord(final CSVRecord csvRecord, DataType dataType){
         List<String> headers = csvRecord.getParser().getHeaderNames();
         List<String> dateHeaders = headers.subList(4,headers.size());
 
@@ -87,25 +89,41 @@ public class CoronaVirusDataService {
         }).collect(Collectors.toList());
 
         Map<LocalDate, List<Record>> week = groupConfirmedCases(recordList, "week");
-        Map<LocalDate, List<Record>> month= groupConfirmedCases(recordList, "month");
+        Map<LocalDate, List<Record>> month = groupConfirmedCases(recordList, "month");
 
         List<Integer> intCases = recordList.stream()
                 .mapToInt(Record::getCases)
                 .boxed()
                 .collect(Collectors.toList());
 
+        int totalCases = dataType.equals(RECOVERED) ? extractMaximumCases(csvRecord).orElse(0)
+                : Integer.parseInt(csvRecord.get(csvRecord.size()-1));
 
         return new LocationStatus(
                 new Location(
                         csvRecord.get(0),
-                        csvRecord.get(1)),
-                Integer.parseInt(csvRecord.get(csvRecord.size()-1)),
-                maximumCases(recordList.size(), intCases),
-                minimumCases(recordList.size(), intCases),
-                recordList, week, month,
+                        csvRecord.get(1),
+                        csvRecord.get(2),
+                        csvRecord.get(3)),
+                dataType,
+                totalCases,
+                maximumCasesPerDay(recordList.size(), intCases),
+                minimumCasesPerDay(recordList.size(), intCases),
+                recordList,
                 calculateGroupRecordSumCases(week),
                 calculateGroupRecordSumCases(month)
                 );
+    }
+
+    private OptionalInt extractMaximumCases(CSVRecord record) {
+        List<Integer> actualList = new ArrayList<>();
+        record.iterator().forEachRemaining(data -> {
+            try {
+                Integer cases = Integer.valueOf(data);
+                actualList.add(cases);
+            }catch(Exception ignored){ }
+        });
+        return actualList.stream().mapToInt(Integer::valueOf).max();
     }
 
     public Map<LocalDate, List<Record>> groupConfirmedCases(List<Record> recordList, final String groupBy){
@@ -114,33 +132,48 @@ public class CoronaVirusDataService {
                         .with(adjusters.get(groupBy))));
     }
 
-    public Map<LocalDate, Integer> calculateGroupRecordSumCases(Map<LocalDate, List<Record>> recordMap) {
-        return recordMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> {
+    public List<Map.Entry<LocalDate, Integer>> calculateGroupRecordSumCases(Map<LocalDate, List<Record>> entryStream) {
+        return entryStream.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> {
             List<Record> recordList = entry.getValue();
             recordList.sort(Comparator.comparing(Record::getDate));
             return recordList.get(recordList.size() - 1).getCases()
                     - recordList.get(0).getCases();
-        }));
+        })).entrySet().stream().sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toList());
     }
 
-    public Integer maximumCases(int size, List<Integer> casesList) {
+    public Integer maximumCasesPerDay(int size, List<Integer> casesList) {
        if (size == 1) {
            return casesList.get(0);
        }
 
        return Math.max(casesList.get(size-1) - casesList.get(size-2),
-               maximumCases(size - 1, casesList));
+               maximumCasesPerDay(size - 1, casesList));
 
     }
 
-    public Integer minimumCases(int size, List<Integer> casesList) {
+    public Integer minimumCasesPerDay(int size, List<Integer> casesList) {
         if (size == 1) {
             return casesList.get(0);
         }
 
         return Math.min(casesList.get(size-1) - casesList.get(size-2),
-                minimumCases(size - 1, casesList));
+                minimumCasesPerDay(size - 1, casesList));
 
+    }
+
+    public void groupAllCovidDataPerState(){
+        List<Location> locations = confirmedCovidData.stream().map(LocationStatus::getLocation).collect(Collectors.toList());
+        this.summaryData = locations.stream().map(location -> (
+                        new OverallLocationStatus(location,
+                                getLocationStatusFromList(location, confirmedCovidData),
+                                getLocationStatusFromList(location, deathCovidData),
+                                getLocationStatusFromList(location, recoveredCovidData))))
+                .collect(Collectors.toList());
+    }
+
+    public LocationStatus getLocationStatusFromList(Location location, List<LocationStatus> locationStatuses){
+        return locationStatuses.stream().filter(locationStatus -> locationStatus.getLocation().equals(location)).findFirst().orElse(null);
     }
 
     public List<LocationStatus> getConfirmedCovidData() {
@@ -153,5 +186,9 @@ public class CoronaVirusDataService {
 
     public List<LocationStatus> getRecoveredCovidData() {
         return recoveredCovidData;
+    }
+
+    public List<OverallLocationStatus> getSummaryData() {
+        return summaryData;
     }
 }

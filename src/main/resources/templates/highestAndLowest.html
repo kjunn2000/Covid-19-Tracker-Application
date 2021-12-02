@@ -23,7 +23,7 @@
             </div>
         </div>
     </nav>
-    <form class="float-right text-white p-3" th:action="@{/search}">
+    <form class="float-right text-white p-3" th:action="@{/highest-and-lowest/search}">
         <label >Country:</label>
         <div class="btn-group" role="group" >
             <input type="text" name="country" onkeypress="ExplicitPrevention(event)">
@@ -32,18 +32,27 @@
     </form>
     <table id="table" class="table bg-dark p-5 text-white">
         <tr style="text-align:center;">
+            <th class="text-danger">*** All cases are calculated per day ***</th>
+        </tr>
+        <tr style="text-align:center;">
             <th>State</th>
             <th>Country</th>
-            <th>Total confirmed cases reported</th>
-            <th>Total death cases reported</th>
-            <th>Total recovered cases reported</th>
+            <th>Highest Confirmed Cases</th>
+            <th>Lowest Confirmed Cases</th>
+            <th>Highest Death Cases</th>
+            <th>Lowest Death Cases</th>
+            <th>Highest Recovered Cases</th>
+            <th>Lowest Recovered Cases</th>
         </tr>
         <tr th:each="data : ${summaryData}" style="color:white;padding:10px;">
             <td class="bg-dark" th:text="${data.location.state}"></td>
             <td class="bg-dark" th:text="${data.location.country}"></td>
-            <td class="bg-warning" th:text="${data.confirmedCases != null ? data.confirmedCases.totalCases : '-'}"></td>
-            <td class="bg-danger" th:text="${data.deathCases != null ? data.deathCases.totalCases : '-'}"></td>
-            <td class="bg-info" th:text="${data.recoveredCases != null ? data.recoveredCases.totalCases : '-'}"></td>
+            <td class="bg-warning" th:text="${data.confirmedCases != null ? data.confirmedCases.highestIncreaseCases: '-'}"></td>
+            <td class="bg-warning" th:text="${data.confirmedCases != null ? data.confirmedCases.lowestIncreaseCases: '-'}"></td>
+            <td class="bg-danger" th:text="${data.deathCases != null ? data.deathCases.highestIncreaseCases: '-'}"></td>
+            <td class="bg-danger" th:text="${data.deathCases != null ? data.deathCases.lowestIncreaseCases: '-'}"></td>
+            <td class="bg-info" th:text="${data.recoveredCases != null ? data.recoveredCases.highestIncreaseCases: '-'}"></td>
+            <td class="bg-info" th:text="${data.recoveredCases != null ? data.recoveredCases.lowestIncreaseCases: '-'}"></td>
         </tr>
     </table>
 </body>
