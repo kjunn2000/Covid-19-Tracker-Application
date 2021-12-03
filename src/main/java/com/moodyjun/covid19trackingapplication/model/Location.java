@@ -52,11 +52,11 @@ public class Location {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Location location = (Location) o;
-        return Objects.equals(state, location.state) && Objects.equals(country, location.country) && Objects.equals(Lat, location.Lat) && Objects.equals(Long, location.Long);
+        return Objects.equals(state, location.state) && Objects.equals(country, location.country);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(state, country, Lat, Long);
+        return Objects.hash(state, country);
     }
 }

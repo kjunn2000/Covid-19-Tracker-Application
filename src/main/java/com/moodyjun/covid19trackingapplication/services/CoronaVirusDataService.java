@@ -3,6 +3,7 @@ package com.moodyjun.covid19trackingapplication.services;
 import com.moodyjun.covid19trackingapplication.model.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,9 @@ import static com.moodyjun.covid19trackingapplication.model.DataType.*;
 
 @Service
 public class CoronaVirusDataService {
+
+    @Autowired
+    private PrologService prologService;
 
     private static final String CONFIRMED_CASES_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
     private static final String DEATH_CASES_URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv";
@@ -53,6 +57,8 @@ public class CoronaVirusDataService {
         this.deathCovidData.addAll(translateCovidData(deathRecords, DEATH));
         this.recoveredCovidData.addAll(translateCovidData(recoveredRecords, RECOVERED));
         groupAllCovidDataPerState();
+
+        prologService.writeToPrologFile(confirmedCovidData);
     }
 
     public void clearAllData(){
@@ -147,7 +153,7 @@ public class CoronaVirusDataService {
            return casesList.get(0);
        }
 
-       return Math.max(casesList.get(size-1) - casesList.get(size-2),
+       return Math.max(Math.max(casesList.get(size-1) - casesList.get(size-2),0),
                maximumCasesPerDay(size - 1, casesList));
 
     }
@@ -157,7 +163,7 @@ public class CoronaVirusDataService {
             return casesList.get(0);
         }
 
-        return Math.min(casesList.get(size-1) - casesList.get(size-2),
+        return Math.min(Math.max(casesList.get(size - 1) - casesList.get(size - 2), 0),
                 minimumCasesPerDay(size - 1, casesList));
 
     }
@@ -174,18 +180,6 @@ public class CoronaVirusDataService {
 
     public LocationStatus getLocationStatusFromList(Location location, List<LocationStatus> locationStatuses){
         return locationStatuses.stream().filter(locationStatus -> locationStatus.getLocation().equals(location)).findFirst().orElse(null);
-    }
-
-    public List<LocationStatus> getConfirmedCovidData() {
-        return confirmedCovidData;
-    }
-
-    public List<LocationStatus> getDeathCovidData() {
-        return deathCovidData;
-    }
-
-    public List<LocationStatus> getRecoveredCovidData() {
-        return recoveredCovidData;
     }
 
     public List<OverallLocationStatus> getSummaryData() {

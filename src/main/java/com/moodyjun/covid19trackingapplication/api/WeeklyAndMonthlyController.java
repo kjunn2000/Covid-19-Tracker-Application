@@ -40,7 +40,9 @@ public class WeeklyAndMonthlyController {
     @GetMapping("/weekly/search")
     public String weeklySearch(Model model, @RequestParam(value = "country") String country) {
         List<OverallLocationStatus> summaryData= coronaVirusDataService.getSummaryData();
-        List<OverallLocationStatus> filteredData = summaryData.stream().filter(overallLocationStatus -> overallLocationStatus.getLocation().getCountry().contains(country)).collect(Collectors.toList());
+        List<OverallLocationStatus> filteredData = summaryData.stream()
+                .filter(overallLocationStatus -> overallLocationStatus.getLocation().getCountry().contains(country))
+                .collect(Collectors.toList());
 
         model.addAttribute("summaryData", filteredData);
         model.addAttribute("type", "weekly");
@@ -50,7 +52,9 @@ public class WeeklyAndMonthlyController {
     @GetMapping("/monthly/search")
     public String monthlySearch(Model model, @RequestParam(value = "country") String country) {
         List<OverallLocationStatus> summaryData= coronaVirusDataService.getSummaryData();
-        List<OverallLocationStatus> filteredData = summaryData.stream().filter(overallLocationStatus -> overallLocationStatus.getLocation().getCountry().contains(country)).collect(Collectors.toList());
+        List<OverallLocationStatus> filteredData = summaryData.stream()
+                .filter(overallLocationStatus -> overallLocationStatus.getLocation().getCountry().contains(country))
+                .collect(Collectors.toList());
 
         model.addAttribute("summaryData", filteredData);
         model.addAttribute("type", "monthly");

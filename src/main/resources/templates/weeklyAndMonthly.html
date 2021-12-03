@@ -34,22 +34,27 @@
         <a href="/weekly" class="btn btn-info btn-lg" role="button" aria-pressed="true">Weekly</a>
         <a href="/monthly" class="btn btn-success btn-lg" role="button" aria-pressed="true">Monthly</a>
     </div>
-    <table id="table" class="table bg-dark p-5 text-white">
-        <tr style="text-align:center;">
-            <th>State</th>
-            <th>Country</th>
-            <th th:if="${type == 'weekly'}" th:each="record : ${summaryData[0].confirmedCases.weeklyCases}" th:text="${record.getKey()}"></th>
-            <th th:unless="${type == 'weekly'}" th:each="record : ${summaryData[0].confirmedCases.monthlyCases}" th:text="${record.getKey()}"></th>
-        </tr>
-        <tr th:each="data : ${summaryData}" style="color:white;padding:10px;">
-            <td class="bg-dark" th:text="${data.location.state}"></td>
-            <td class="bg-dark" th:text="${data.location.country}"></td>
-            <td th:each="record: ${data.confirmedCases.weeklyCases}" th:text="${record.getValue()}"></th>
-            <th th:if="${type == 'weekly'}" th:each="record: ${data.confirmedCases.weeklyCases}" th:text="${record.getValue()}"></th>
-            <th th:unless="${type == 'weekly'}" th:each="record: ${data.confirmedCases.monthlyCases}" th:text="${record.getValue()}"></th>
-        </tr>
-    </table>
-
+    <div class="table-responsive" style="overflow-x:auto;width:100%;">
+        <table id="table" class="table bg-dark p-5 text-white">
+            <tr style="text-align:center;">
+                <th class="text-danger">*** All cases are confirmed cases ***</th>
+            </tr>
+            <tr style="text-align:center;">
+                <th >State</th>
+                <th>Country</th>
+                <div th:if="${summaryData.size() > 0}">
+                    <th th:if="${type == 'weekly'}" th:each="record : ${summaryData[0].confirmedCases.weeklyCases}" th:text="${record.getKey()}"></th>
+                    <th th:unless="${type == 'weekly'}" th:each="record : ${summaryData[0].confirmedCases.monthlyCases}" th:text="${record.getKey()}"></th>
+                </div>
+            </tr>
+            <tr th:each="data : ${summaryData}" style="color:white;padding:10px;">
+                <td class="bg-dark" th:text="${data.location.state}"></td>
+                <td class="bg-dark" th:text="${data.location.country}"></td>
+                <th th:if="${type == 'weekly'}" th:each="record: ${data.confirmedCases.weeklyCases}" th:text="${record.getValue()}"></th>
+                <th th:unless="${type == 'weekly'}" th:each="record: ${data.confirmedCases.monthlyCases}" th:text="${record.getValue()}"></th>
+            </tr>
+        </table>
+    </div>
 </body>
 
 </html>
