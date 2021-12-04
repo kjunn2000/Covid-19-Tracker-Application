@@ -27,10 +27,7 @@ public class HighestAndLowestController {
 
     @GetMapping("/highest-and-lowest/search")
     public String homeSearch(Model model, @RequestParam(value = "country") String country) {
-        List<OverallLocationStatus> summaryData= coronaVirusDataService.getSummaryData();
-        List<OverallLocationStatus> filteredData = summaryData.stream().filter(overallLocationStatus -> overallLocationStatus.getLocation().getCountry().contains(country)).collect(Collectors.toList());
-
-        model.addAttribute("summaryData", filteredData);
+        model.addAttribute("summaryData", coronaVirusDataService.getSummaryDataByCountry(country));
         return "highestAndLowest";
     }
 }

@@ -3,7 +3,6 @@ package com.moodyjun.covid19trackingapplication.model;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class LocationStatus {
     private Location location;

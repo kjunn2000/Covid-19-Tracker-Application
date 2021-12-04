@@ -1,5 +1,6 @@
 package com.moodyjun.covid19trackingapplication.services;
 
+import com.moodyjun.covid19trackingapplication.model.Location;
 import com.moodyjun.covid19trackingapplication.model.LocationStatus;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,20 @@ public class PrologService {
     public void writeToPrologFile(List<LocationStatus> locationStatusList){
         List<String> knowledgeData = locationStatusList.stream()
                 .map(locationStatus -> {
-                    String country = locationStatus.getLocation().getCountry().toLowerCase().replaceAll(" |'","_")
+                    Location location = locationStatus.getLocation();
+                    String country = location.getCountry()
+                            .toLowerCase()
+                            .replaceAll(" |'","_")
                             .replaceAll(",","");
-                    String state = locationStatus.getLocation().getState().trim().toLowerCase().replaceAll(" ","_")
+                    String state = location.getState()
+                            .trim()
+                            .toLowerCase()
+                            .replaceAll(" ","_")
                             .replaceAll(",","");
                     country = country.endsWith("*") ? country.substring(0,country.length()-1) : country;
-                    return "totalCases(" + country + (state.isEmpty() ? "" : "(" + state + ")" )+ "," + locationStatus.getTotalCases() + ").\n";
+                    return "totalCases(" + country
+                            + (state.isEmpty() ? "" : "(" + state + ")" )
+                            + "," + locationStatus.getTotalCases() + ").\n";
                 }).collect(Collectors.toList());
         try {
             Files.writeString(Paths.get(PL_FILE), String.join("",knowledgeData));

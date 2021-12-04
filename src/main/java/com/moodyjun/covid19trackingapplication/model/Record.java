@@ -3,7 +3,6 @@ package com.moodyjun.covid19trackingapplication.model;
 import java.time.LocalDate;
 
 public class Record {
-
     private LocalDate date;
     private int cases;
 
