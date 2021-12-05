@@ -144,7 +144,7 @@ public class CoronaVirusDataService {
         }
 
         return min.apply(max.apply(casesList.get(size-1) - casesList.get(size-2)).apply(0)).apply(
-                maximumCasesPerDay(size - 1, casesList));
+                minimumCasesPerDay(size - 1, casesList));
     }
 
     private List<Map.Entry<LocalDate, Integer>> calculateGroupRecordSumCases(Map<LocalDate, List<Record>> entryStream) {
@@ -158,7 +158,10 @@ public class CoronaVirusDataService {
     }
 
     BiFunction<Location, List<LocationStatus>, LocationStatus> getLocationStatusFromList = (location, locationStatuses) ->
-            locationStatuses.stream().filter(locationStatus -> locationStatus.getLocation().equals(location)).findFirst().orElse(null);
+            locationStatuses.stream()
+                    .filter(locationStatus -> locationStatus.getLocation().equals(location))
+                    .findFirst()
+                    .orElse(null);
 
     private void groupAllCovidDataByState(List<LocationStatus> confirmedCovidData, List<LocationStatus> deathCovidData, List<LocationStatus> recoveredCovidData){
         List<Location> locations = confirmedCovidData.stream().map(LocationStatus::getLocation).collect(Collectors.toList());
