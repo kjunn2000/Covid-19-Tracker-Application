@@ -18,7 +18,7 @@ public class HighestAndLowestController {
     CoronaVirusDataService coronaVirusDataService;
 
     @GetMapping("/highest-and-lowest")
-    public String home(Model model) {
+    public String highestAndLowest(Model model) {
         List<OverallLocationStatus> summaryData= coronaVirusDataService.getSummaryData();
 
         model.addAttribute("summaryData", summaryData);
@@ -26,7 +26,7 @@ public class HighestAndLowestController {
     }
 
     @GetMapping("/highest-and-lowest/search")
-    public String homeSearch(Model model, @RequestParam(value = "country") String country) {
+    public String highestAndLowestSearch(Model model, @RequestParam(value = "country") String country) {
         model.addAttribute("summaryData", coronaVirusDataService.getSummaryDataByCountry(country));
         return "highestAndLowest";
     }
